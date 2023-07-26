@@ -38,6 +38,8 @@ class HomePage extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: SlideAction(
+                    sliderRotate: false,
+                    reversed: false,
                     key: _key,
                     onSubmit: () {
                       Future.delayed(
@@ -156,13 +158,10 @@ class HomePage extends StatelessWidget {
                   child: SlideAction(
                     key: _key,
                     onSubmit: () {
-                      Future.delayed(
-                        Duration(seconds: 1),
-                        () => _key.currentState!.reset(),
-                      );
+                      _key.currentState!.reset();
                     },
                     borderRadius: 16,
-                    animationDuration: Duration(seconds: 1),
+                    animationDuration: Duration(milliseconds: 50),
                   ),
                 );
               },

@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 library flutterslidetoact;
 
 import 'dart:math';
@@ -119,7 +121,7 @@ class SlideActionState extends State<SlideAction>
         child: Container(
           key: _containerKey,
           height: widget.height,
-          width: _containerWidth,
+          width: double.infinity,
           constraints: _containerWidth != null
               ? null
               : BoxConstraints.expand(height: widget.height),
@@ -127,126 +129,89 @@ class SlideActionState extends State<SlideAction>
             elevation: widget.elevation,
             color: widget.outerColor ?? Theme.of(context).colorScheme.secondary,
             borderRadius: BorderRadius.circular(widget.borderRadius),
-            child: submitted
-                ? Transform(
+            child: Stack(
+              alignment: Alignment.center,
+              clipBehavior: Clip.none,
+              children: <Widget>[
+                Opacity(
+                  opacity: 1 - 1 * _progress,
+                  child: Transform(
                     alignment: Alignment.center,
                     transform: Matrix4.rotationY(widget.reversed ? pi : 0),
-                    child: Center(
-                      child: Stack(
-                        clipBehavior: Clip.antiAlias,
-                        children: <Widget>[
-                          widget.submittedIcon ??
-                              Icon(
-                                Icons.done,
+                    child: widget.child ??
+                        Text(
+                          widget.text ?? 'Slide to act',
+                          textAlign: TextAlign.center,
+                          style: widget.textStyle ??
+                              TextStyle(
                                 color: widget.innerColor ??
                                     Theme.of(context).primaryIconTheme.color,
-                              ),
-                          Positioned.fill(
-                            right: 0,
-                            child: Transform(
-                              transform: Matrix4.rotationY(
-                                  _checkAnimationDx * (pi / 2)),
-                              alignment: Alignment.centerRight,
-                              child: Container(
-                                color: widget.outerColor ??
-                                    Theme.of(context).colorScheme.secondary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : Stack(
-                    alignment: Alignment.center,
-                    clipBehavior: Clip.none,
-                    children: <Widget>[
-                      Opacity(
-                        opacity: 1 - 1 * _progress,
-                        child: Transform(
-                          alignment: Alignment.center,
-                          transform:
-                              Matrix4.rotationY(widget.reversed ? pi : 0),
-                          child: widget.child ??
-                              Text(
-                                widget.text ?? 'Slide to act',
-                                textAlign: TextAlign.center,
-                                style: widget.textStyle ??
-                                    TextStyle(
-                                      color: widget.innerColor ??
-                                          Theme.of(context)
-                                              .primaryIconTheme
-                                              .color,
-                                      fontSize: 24,
-                                    ),
+                                fontSize: 24,
                               ),
                         ),
-                      ),
-                      Positioned(
-                        left: widget.sliderButtonYOffset,
-                        child: Transform.scale(
-                          scale: _dz,
-                          origin: Offset(_dx, 0),
-                          child: Transform.translate(
-                            offset: Offset(_dx, 0),
-                            child: Container(
-                              key: _sliderKey,
-                              child: GestureDetector(
-                                onHorizontalDragUpdate: onHorizontalDragUpdate,
-                                onHorizontalDragEnd: (details) async {
-                                  _endDx = _dx;
-                                  if (_progress <= 0.8 ||
-                                      widget.onSubmit == null) {
-                                    _cancelAnimation();
-                                  } else {
-                                    await _resizeAnimation();
+                  ),
+                ),
+                Positioned(
+                  left: widget.sliderButtonYOffset,
+                  child: Transform.scale(
+                    scale: 1,
+                    origin: Offset(_dx, 0),
+                    child: Transform.translate(
+                      offset: Offset(_dx, 0),
+                      child: Container(
+                        key: _sliderKey,
+                        child: GestureDetector(
+                          onHorizontalDragUpdate: onHorizontalDragUpdate,
+                          onHorizontalDragEnd: (details) async {
+                            _endDx = _dx;
+                            if (_progress <= 0.8 || widget.onSubmit == null) {
+                              _cancelAnimation();
+                            } else {
+                              await _resizeAnimation();
 
-                                    await _shrinkAnimation();
+                              await _shrinkAnimation();
 
-                                    await _checkAnimation();
+                              await _checkAnimation();
 
-                                    widget.onSubmit!();
-                                  }
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: Material(
-                                    borderRadius: BorderRadius.circular(
-                                        widget.borderRadius),
-                                    child: Container(
-                                      padding: EdgeInsets.all(
-                                          widget.sliderButtonIconPadding),
-                                      child: Transform.rotate(
-                                        angle: widget.sliderRotate
-                                            ? -pi * _progress
-                                            : 0,
-                                        child: Center(
-                                          child: widget.sliderButtonIcon ??
-                                              Icon(
-                                                Icons.arrow_forward,
-                                                size:
-                                                    widget.sliderButtonIconSize,
-                                                color: widget.outerColor ??
-                                                    Theme.of(context)
-                                                        .colorScheme.secondary,
-                                              ),
+                              widget.onSubmit!();
+                            }
+                          },
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Material(
+                              borderRadius:
+                                  BorderRadius.circular(widget.borderRadius),
+                              child: Container(
+                                padding: EdgeInsets.all(
+                                    widget.sliderButtonIconPadding),
+                                child: Transform.rotate(
+                                  angle:
+                                      widget.sliderRotate ? -pi * _progress : 0,
+                                  child: Center(
+                                    child: widget.sliderButtonIcon ??
+                                        Icon(
+                                          Icons.arrow_forward,
+                                          size: widget.sliderButtonIconSize,
+                                          color: widget.outerColor ??
+                                              Theme.of(context)
+                                                  .colorScheme
+                                                  .secondary,
                                         ),
-                                      ),
-                                    ),
-                                    color: widget.innerColor ??
-                                        Theme.of(context)
-                                            .primaryIconTheme
-                                            .color,
                                   ),
                                 ),
                               ),
+                              color: widget.innerColor ??
+                                  Theme.of(context).primaryIconTheme.color,
                             ),
                           ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -314,7 +279,7 @@ class SlideActionState extends State<SlideAction>
     });
 
     setState(() {
-      submitted = true;
+      submitted = false;
     });
     await _shrinkAnimationController.forward().orCancel;
   }
